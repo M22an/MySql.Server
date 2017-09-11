@@ -37,32 +37,30 @@ namespace MySql.Server
             }
         }
 
-
-
         //The Instance is running the private constructor. This way, the class is implemented as a singleton
         private static MySqlServer instance;
-        public static MySqlServer Instance
+        
+        // Modified to allow customization of base directory and still keeping the class as singleton
+        public MySqlServer GetInstance(string baseDirectory)
         {
-            get
+            if (instance == null)
             {
-                if (instance == null)
-                {
-                    instance = new MySqlServer();
-                }
+                instance = new MySqlServer(baseDirectory);
+            }    
 
-                return instance;
-            }
+            return instance;
         }
 
         /// <summary>
         /// The MySQL server is started in the constructor
-        /// </summary>
-        private MySqlServer()
+        /// </summary>        
+        private MySqlServer(string baseDirectory)
         {
-            _mysqlDirectory = BaseDirHelper.GetBaseDir() + "\\tempServer";
+            baseDirectory = (!string.IsNullorWhitespace(baseDirectory)) ? baseDirectory : BaseDirHelper.GetBaseDir();
+            _mysqlDirectory = baseDirectory + "\\tempServer";
             _dataRootDirectory = _mysqlDirectory + "\\data";
             _dataDirectory = string.Format("{0}\\{1}", _dataRootDirectory, Guid.NewGuid());
-            _runningInstancesFile = BaseDirHelper.GetBaseDir() + "\\running_instances";
+            _runningInstancesFile = baseDirectory + "\\running_instances";
         }
 
         ~MySqlServer()
